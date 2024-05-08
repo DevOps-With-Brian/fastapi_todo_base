@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from database import SessionLocal
-from models import Users
+from ..database import SessionLocal
+from ..models import Users
 import bcrypt
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
