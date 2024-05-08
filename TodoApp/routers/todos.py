@@ -29,8 +29,13 @@ class TodoRequest(BaseModel):
     complete: bool
 
 
-@router.get("/", status_code=status.HTTP_200_OK)
-async def read_all(
+@router.get("/")
+async def read_all(db: Session = Depends(get_db)):
+    return db.query(Todos).all()
+
+
+@router.get("/user", status_code=status.HTTP_200_OK)
+async def read_all_by_user(
     user: user_dependency, db: db_dependency, status_code=status.HTTP_200_OK
 ):
     if user is None:
@@ -38,7 +43,7 @@ async def read_all(
     return db.query(Todos).filter(Todos.owner_id == user.get("id")).all()
 
 
-@router.get("/todo/{todo_id}", status_code=status.HTTP_200_OK)
+@router.get("/{todo_id}", status_code=status.HTTP_200_OK)
 async def read_todo(
     user: user_dependency, db: db_dependency, todo_id: int = Path(gt=0)
 ):
@@ -52,10 +57,10 @@ async def read_todo(
     )
     if todo_model is not None:
         return todo_model
-    raise HTTPException(status_code=404, detail="Todo no found.")
+    raise HTTPException(status_code=404, detail="Todo not found.")
 
 
-@router.post("/todo", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_todo(
     user: user_dependency, db: db_dependency, todo_request: TodoRequest
 ):
@@ -67,7 +72,7 @@ async def create_todo(
     db.commit()
 
 
-@router.put("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_todo(
     user: user_dependency,
     db: db_dependency,
@@ -95,7 +100,7 @@ async def update_todo(
     db.commit()
 
 
-@router.delete("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_todo(user: user_dependency, db: db_dependency, todo_id: int = Path(gt=0)):
     if user is None:
         raise HTTPException(status_code=401, detail="Authentication Failed")
